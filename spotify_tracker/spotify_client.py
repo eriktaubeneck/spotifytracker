@@ -24,24 +24,18 @@ class SpotifyClient:
             self._sp.trace = False
         return self._sp
 
-    @property
-    def playlist_track_ids(self):
-        if not hasattr(self, '_playlist_track_ids'):
-            pl = self.sp.user_playlist(self.username, self.playlist_id)
-            self._playlist_track_ids = {
-                track['track']['id'] for track in pl['tracks']['items']
-            }
-        return self._playlist_track_ids
-
     def check_track_in_playlist(self, track_id):
-        return track_id in self.playlist_track_ids
+        pl = self.sp.user_playlist(self.username, self.playlist_id)
+        playlist_track_ids = {
+            track['track']['id'] for track in pl['tracks']['items']
+        }
+        return track_id in playlist_track_ids
 
     def add_track_to_playlist(self, track_id):
         if not self.check_track_in_playlist(track_id):
             self.sp.user_playlist_add_tracks(
                 self.username, self.playlist_id, [track_id]
             )
-            self.playlist_track_ids.add(track_id)
             return True
         return False
 
