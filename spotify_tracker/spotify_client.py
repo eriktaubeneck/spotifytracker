@@ -31,6 +31,14 @@ class SpotifyClient:
         }
         return track_id in playlist_track_ids
 
+    def get_track_name_and_artist_string(self, track_id):
+        track = self.sp.track(track_id)
+        track_name = '{} - '.format(track.get('name', '<Track Name Missing>'))
+        artists_names = [
+            a.get('name', '<Artist Name Missing>') for a in track.get('artists', [{}])
+        ]
+        return track_name + ', '.join(artists_names)
+
     def add_track_to_playlist(self, track_id):
         if not self.check_track_in_playlist(track_id):
             self.sp.user_playlist_add_tracks(
@@ -50,7 +58,14 @@ class SpotifyClient:
         if not self.check_config():
             raise Exception("Please run setup")
         while True:
-            self.main()
+            try:
+                self.main()
+                time.sleep(5)
+            except spotipy.client.SpotifyException as exc:
+                if exc.code == -1:
+                    self.save_token()
+                else:
+                    raise exc
 
     def get_current_track_id(self):
         try:
@@ -62,24 +77,20 @@ class SpotifyClient:
         if not track_id or track_id == self.last_track_id:
             return
         self.last_track_id = track_id
-        print('Currently listening to {}'.format(track_id))
+        print('Currently listening to {}'.format(
+            self.get_track_name_and_artist_string(track_id)
+        ))
         return track_id
 
     def main(self):
         track_id = self.get_current_track_id()
         if not track_id:
             return
-        try:
-            success = self.add_track_to_playlist(track_id)
-            if success:
-                print('Added {}'.format(track_id))
-            time.sleep(30)
-        except spotipy.client.SpotifyException as exc:
-            if exc.code == -1:
-                self.save_token()
-            else:
-                print(exc.__dict__)
-                raise exc
+        success = self.add_track_to_playlist(track_id)
+        if success:
+            print('Added {}'.format(
+                self.get_track_name_and_artist_string(track_id)
+            ))
 
     def setup_username(self):
         username = input("Please provide your Spotify username: ")
