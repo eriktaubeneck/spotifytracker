@@ -11,11 +11,18 @@ def tell_spotify(command):
     return apple_script_call('tell application "Spotify" to {}'.format(command))
 
 
+def check_if_playing():
+    apple_script_string = tell_spotify('return player state as string')
+    return apple_script_string.strip() == 'playing'
+
+
 def get_track_id_from_apple_script_string(apple_script_string):
     return apple_script_string.split(':')[-1].strip()
 
 
 def get_current_track_id():
+    if not check_if_playing():
+        return None
     apple_script_string = tell_spotify('return id of current track as string')
     return get_track_id_from_apple_script_string(apple_script_string)
 

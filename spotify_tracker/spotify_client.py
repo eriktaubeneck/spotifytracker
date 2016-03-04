@@ -15,6 +15,7 @@ class SpotifyClient:
         self.callback_url = config.get_config_value('callback_url')
         self.token = config.get_config_value('token')
         self.playlist_id = config.get_config_value('playlist_id')
+        self.last_track_id = None
 
     @property
     def sp(self):
@@ -49,23 +50,42 @@ class SpotifyClient:
             self.username, config.SCOPE, self.client_id,
             self.client_secret, self.callback_url)
         config.save_config_value('token', token)
+        self.token = token
 
     def watch(self):
         if not self.check_config():
             raise Exception("Please run setup")
         while True:
+            self.main()
+
+    def get_current_track_id(self):
+        try:
             track_id = current_track.get_current_track_id()
-            print('Currently listening to {}'.format(track_id))
-            try:
-                success = self.add_track_to_playlist(track_id)
-                if success:
-                    print('Added {}'.format(track_id))
-                time.sleep(30)
-            except spotipy.client.SpotifyException as exc:
-                if exc.code == -1:
-                    self.save_token()
-                else:
-                    raise exc
+        except Exception as exc:
+            print("AppleScript Exception")
+            print(exc)
+            return
+        if not track_id or track_id == self.last_track_id:
+            return
+        self.last_track_id = track_id
+        print('Currently listening to {}'.format(track_id))
+        return track_id
+
+    def main(self):
+        track_id = self.get_current_track_id()
+        if not track_id:
+            return
+        try:
+            success = self.add_track_to_playlist(track_id)
+            if success:
+                print('Added {}'.format(track_id))
+            time.sleep(30)
+        except spotipy.client.SpotifyException as exc:
+            if exc.code == -1:
+                self.save_token()
+            else:
+                print(exc.__dict__)
+                raise exc
 
     def setup_username(self):
         username = input("Please provide your Spotify username: ")
