@@ -21,7 +21,7 @@ setup(
     ],
     entry_points="""
     [console_scripts]
-    spotifytracker = spotify_tracker.runner:main
+    spotifytracker = runner:main
     """,
     classifiers=[
         'Development Status :: 3 - Alpha',

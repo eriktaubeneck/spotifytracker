@@ -1,10 +1,14 @@
 import time
+import logging
 
 import spotipy
 import spotipy.util as util
 
 from . import current_track
 from . import config
+
+
+logger = logging.getLogger(name='spotify_tracker')
 
 
 class SpotifyClient:
@@ -20,9 +24,12 @@ class SpotifyClient:
     @property
     def sp(self):
         if not hasattr(self, '_sp'):
-            self._sp = spotipy.Spotify(auth=config.get_config_value('token'))
-            self._sp.trace = False
+            self.refresh_sp()
         return self._sp
+
+    def refresh_sp(self):
+        self._sp = spotipy.Spotify(auth=config.get_config_value('token'))
+        self._sp.trace = False
 
     def check_track_in_playlist(self, track_id):
         pl = self.sp.user_playlist(self.username, self.playlist_id)
@@ -48,36 +55,44 @@ class SpotifyClient:
         return False
 
     def save_token(self):
+        logger.debug('Updating token.')
         token = util.prompt_for_user_token(
             self.username, config.SCOPE, self.client_id,
             self.client_secret, self.callback_url)
         config.save_config_value('token', token)
         self.token = token
+        self.refresh_sp()
 
     def watch(self):
         if not self.check_config():
             raise Exception("Please run setup")
+
+        logger.debug('Starting watch loop')
         while True:
-            try:
-                self.main()
-                time.sleep(5)
-            except spotipy.client.SpotifyException as exc:
-                if exc.code == -1:
-                    self.save_token()
-                else:
-                    raise exc
+            logger.debug('New watch lap completed.')
+            self.safe_main()
+
+    def safe_main(self):
+        try:
+            self.main()
+            time.sleep(5)
+        except spotipy.client.SpotifyException as exc:
+            if exc.code == -1:
+                logger.debug('SpotifyException reached in watch loop.')
+                self.save_token()
+            else:
+                logger.exception('Unknown exception in watch loop.')
+                raise
 
     def get_current_track_id(self):
         try:
             track_id = current_track.get_current_track_id()
-        except Exception as exc:
-            print("AppleScript Exception")
-            print(exc)
+        except:
+            logger.exception('Unknown Exception reach getting current track_id.')
             return
         if not track_id or track_id == self.last_track_id:
             return
-        self.last_track_id = track_id
-        print('Currently listening to {}'.format(
+        logger.info('Currently listening to {}'.format(
             self.get_track_name_and_artist_string(track_id)
         ))
         return track_id
@@ -88,7 +103,8 @@ class SpotifyClient:
             return
         success = self.add_track_to_playlist(track_id)
         if success:
-            print('Added {}'.format(
+            self.last_track_id = track_id
+            logger.info('Added {}'.format(
                 self.get_track_name_and_artist_string(track_id)
             ))
 
