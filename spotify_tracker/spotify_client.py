@@ -31,11 +31,28 @@ class SpotifyClient:
         self._sp = spotipy.Spotify(auth=config.get_config_value('token'))
         self._sp.trace = False
 
+    def build_playlist_tracks(self, playlist_track_ids=None, tracks=None):
+        if not tracks:
+            pl = self.sp.user_playlist(
+                self.username, self.playlist_id,
+                fields=['tracks', 'next']
+            )
+            tracks = pl['tracks']
+        else:
+            tracks = self.sp.next(tracks)
+        if not playlist_track_ids:
+            playlist_track_ids = set()
+
+        playlist_track_ids = playlist_track_ids.union({
+            track['track']['id'] for track in tracks['items']
+        })
+        if tracks['next']:
+            return self.build_playlist_tracks(playlist_track_ids, tracks)
+        else:
+            return playlist_track_ids
+
     def check_track_in_playlist(self, track_id):
-        pl = self.sp.user_playlist(self.username, self.playlist_id)
-        playlist_track_ids = {
-            track['track']['id'] for track in pl['tracks']['items']
-        }
+        playlist_track_ids = self.build_playlist_tracks()
         return track_id in playlist_track_ids
 
     def get_track_name_and_artist_string(self, track_id):
@@ -47,12 +64,16 @@ class SpotifyClient:
         return track_name + ', '.join(artists_names)
 
     def add_track_to_playlist(self, track_id):
-        if not self.check_track_in_playlist(track_id):
-            self.sp.user_playlist_add_tracks(
+        if self.check_track_in_playlist(track_id):
+            self.sp.user_playlist_remove_all_occurrences_of_tracks(
                 self.username, self.playlist_id, [track_id]
             )
-            return True
-        return False
+        self.sp.user_playlist_add_tracks(
+            self.username, self.playlist_id, [track_id]
+        )
+        logger.debug('Added {}'.format(
+            self.get_track_name_and_artist_string(track_id)
+        ))
 
     def save_token(self):
         logger.debug('Updating token.')
@@ -90,23 +111,17 @@ class SpotifyClient:
         except:
             logger.exception('Unknown Exception reach getting current track_id.')
             return
+        return track_id
+
+    def main(self):
+        track_id = self.get_current_track_id()
         if not track_id or track_id == self.last_track_id:
             return
         logger.info('Currently listening to {}'.format(
             self.get_track_name_and_artist_string(track_id)
         ))
-        return track_id
-
-    def main(self):
-        track_id = self.get_current_track_id()
-        if not track_id:
-            return
-        success = self.add_track_to_playlist(track_id)
-        if success:
-            self.last_track_id = track_id
-            logger.info('Added {}'.format(
-                self.get_track_name_and_artist_string(track_id)
-            ))
+        self.add_track_to_playlist(track_id)
+        self.last_track_id = track_id
 
     def setup_username(self):
         username = input("Please provide your Spotify username: ")
