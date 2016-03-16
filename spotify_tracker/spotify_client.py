@@ -1,8 +1,10 @@
 import time
 import logging
+import datetime
 
 import spotipy
 import spotipy.util as util
+import arrow
 
 from . import current_track
 from . import config
@@ -31,7 +33,7 @@ class SpotifyClient:
         self._sp = spotipy.Spotify(auth=config.get_config_value('token'))
         self._sp.trace = False
 
-    def build_playlist_tracks(self, playlist_track_ids=None, tracks=None):
+    def build_playlist_tracks(self, playlist_tracks=None, tracks=None):
         if not tracks:
             pl = self.sp.user_playlist(
                 self.username, self.playlist_id,
@@ -40,20 +42,34 @@ class SpotifyClient:
             tracks = pl['tracks']
         else:
             tracks = self.sp.next(tracks)
-        if not playlist_track_ids:
-            playlist_track_ids = set()
+        if not playlist_tracks:
+            playlist_tracks = []
 
-        playlist_track_ids = playlist_track_ids.union({
-            track['track']['id'] for track in tracks['items']
-        })
+        playlist_tracks.extend(tracks['items'])
         if tracks['next']:
-            return self.build_playlist_tracks(playlist_track_ids, tracks)
+            return self.build_playlist_tracks(playlist_tracks, tracks)
         else:
-            return playlist_track_ids
+            return playlist_tracks
 
     def check_track_in_playlist(self, track_id):
-        playlist_track_ids = self.build_playlist_tracks()
+        playlist_track_ids = {track['track']['id'] for
+                              track in self.build_playlist_tracks()}
         return track_id in playlist_track_ids
+
+    def remove_old_tracks_in_playlist(self, _days, dryrun=True):
+        # remove tracks older than <days> days in the playlist
+        old_track_ids = [
+            track['track']['id'] for
+            track in self.build_playlist_tracks()
+            if arrow.now() - arrow.get(track['added_at']) > datetime.timedelta(days=_days)
+        ]
+        for track_id in old_track_ids:
+            logger.info('Removing: {}'.format(
+                self.get_track_name_and_artist_string(track_id)))
+        if not dryrun:
+            self.sp.user_playlist_remove_all_occurrences_of_tracks(
+                self.username, self.playlist_id, old_track_ids
+            )
 
     def get_track_name_and_artist_string(self, track_id):
         track = self.sp.track(track_id)

@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='spotifytracker',
-    version='0.0.7',
+    version='0.0.8',
     packages=['spotify_tracker'],
     url='http://github.com/eriktaubeneck/spotifytracker',
     license='MIT',
@@ -18,6 +18,7 @@ setup(
         'pyyaml >=3.0, <4.a0',
         'docopt >=0.6.0, <0.7.0',
         'spotipy >=2.3.7, <2.4.0',
+        'arrow > 0.7.0, < 1.0.0',
     ],
     entry_points="""
     [console_scripts]
