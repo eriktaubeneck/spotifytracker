@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='spotifytracker',
-    version='0.0.9',
+    version='0.0.11',
     packages=['spotify_tracker'],
     url='http://github.com/eriktaubeneck/spotifytracker',
     license='MIT',
@@ -22,7 +22,7 @@ setup(
     ],
     entry_points="""
     [console_scripts]
-    spotifytracker = runner:main
+    spotifytracker = spotify_tracker.runner:main
     """,
     classifiers=[
         'Development Status :: 3 - Alpha',

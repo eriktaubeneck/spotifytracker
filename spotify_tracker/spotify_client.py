@@ -1,4 +1,3 @@
-import time
 import logging
 import datetime
 
@@ -13,15 +12,13 @@ from . import config
 logger = logging.getLogger(name='spotify_tracker')
 
 
-class SpotifyClient:
+class SpotifyPlaylistClient:
     def __init__(self):
         self.username = config.get_config_value('username')
         self.client_id = config.get_config_value('client_id')
         self.client_secret = config.get_config_value('client_secret')
         self.callback_url = config.get_config_value('callback_url')
         self.token = config.get_config_value('token')
-        self.playlist_id = config.get_config_value('playlist_id')
-        self.last_track_id = None
 
     @property
     def sp(self):
@@ -100,19 +97,12 @@ class SpotifyClient:
         self.token = token
         self.refresh_sp()
 
-    def watch(self):
-        if not self.check_config():
-            raise Exception("Please run setup")
-
-        logger.debug('Starting watch loop')
-        while True:
-            logger.debug('New watch lap completed.')
-            self.safe_main()
+    def main(self):
+        raise NotImplementedError
 
     def safe_main(self):
         try:
             self.main()
-            time.sleep(5)
         except spotipy.client.SpotifyException as exc:
             if exc.code == -1:
                 logger.debug('SpotifyException reached in watch loop.')
@@ -128,16 +118,6 @@ class SpotifyClient:
             logger.exception('Unknown Exception reach getting current track_id.')
             return
         return track_id
-
-    def main(self):
-        track_id = self.get_current_track_id()
-        if not track_id or track_id == self.last_track_id:
-            return
-        logger.info('Currently listening to {}'.format(
-            self.get_track_name_and_artist_string(track_id)
-        ))
-        self.add_track_to_playlist(track_id)
-        self.last_track_id = track_id
 
     def setup_username(self):
         username = input("Please provide your Spotify username: ")
@@ -169,15 +149,7 @@ class SpotifyClient:
         print('Your token is saved.')
 
     def setup_playlist_id(self):
-        print("You need to add a playlist_id to your config")
-        sp_playlists = self.sp.user_playlists(self.username)
-        playlists = [p for p in sp_playlists['items']
-                     if p['owner']['id'] == self.username]
-        for playlist in playlists:
-            print('{}: {}'.format(playlist['name'], playlist['id']))
-        playlist_id = input("Please input the playlist_id of the Playlist "
-                            "you'd like to save your history to.")
-        config.save_config_value('playlist_id', playlist_id)
+        raise NotImplementedError
 
     def setup(self):
         if not self.username:
