@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='spotifytracker',
-    version='0.0.11',
+    version='0.0.12',
     packages=['spotify_tracker'],
     url='http://github.com/eriktaubeneck/spotifytracker',
     license='MIT',
