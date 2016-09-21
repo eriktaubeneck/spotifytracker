@@ -34,8 +34,15 @@ class SpotifyFavoritesClient(SpotifyPlaylistClient):
         track_id = self.get_current_track_id()
         if not track_id:
             logger.warning('No song currently playing')
-        self.add_track_to_playlist(track_id)
-        logger.info('Added {} to {}'.format(
-            self.get_track_name_and_artist_string(track_id),
-            self.playlist_name
-        ))
+            return
+        if not self.check_track_in_playlist(track_id):
+            self.add_track_to_playlist(track_id)
+            logger.info('Added {} to {}'.format(
+                self.get_track_name_and_artist_string(track_id),
+                self.playlist_name
+            ))
+        else:
+            logger.info('{} is already in {}'.format(
+                self.get_track_name_and_artist_string(track_id),
+                self.playlist_name
+            ))
