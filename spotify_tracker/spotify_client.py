@@ -105,10 +105,10 @@ class SpotifyPlaylistClient:
             self.main()
         except spotipy.client.SpotifyException as exc:
             if exc.code == -1:
-                logger.debug('SpotifyException reached in watch loop.')
+                logger.debug('SpotifyException.')
                 self.save_token()
             else:
-                logger.exception('Unknown exception in watch loop.')
+                logger.exception('Unknown exception.')
                 raise
 
     def get_current_track_id(self):

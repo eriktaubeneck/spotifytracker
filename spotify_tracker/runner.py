@@ -62,7 +62,7 @@ def main():
         return
     if arguments['addtofavorites']:
         _spotify_client = SpotifyFavoritesClient()
-        _spotify_client.main()
+        _spotify_client.safe_main()
         return
     if arguments['debug-refresh-token']:
         _spotify_client = SpotifyPlaylistClient()
