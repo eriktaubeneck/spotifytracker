@@ -1,8 +1,8 @@
 import subprocess
 
 
-def apple_script_call(apple_scirpt):
-    full_apple_script_call = ['osascript', '-e', apple_scirpt]
+def apple_script_call(apple_script):
+    full_apple_script_call = ['osascript', '-e', apple_script]
     apple_script_return = subprocess.check_output(full_apple_script_call)
     return apple_script_return.decode("utf-8")
 
