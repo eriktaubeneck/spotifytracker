@@ -4,7 +4,7 @@ Usage:
   spotifytracker setupwatcher
   spotifytracker setupfavorites
   spotifytracker watch [ [-V | --verbose] | [-Q | --quiet ]]
-  spotifytracker addtofavorites [ [-V | --verbose] | [-Q | --quiet ] | [-S | --scripted ]]
+  spotifytracker addtofavorites [ [-V | --verbose] | [-Q | --quiet ] | [--alfred ]]
   spotifytracker debug-refresh-token
   spotifytracker remove-old-tracks-watcher <days> [-D | --dryrun ] [ [-V | --verbose] | [-Q | --quiet ]]
 
@@ -38,7 +38,7 @@ def main():
         base_logger.setLevel(level=logging.DEBUG)
     elif arguments['--quiet']:
         base_logger.setLevel(level=logging.WARNING)
-    elif arguments['--scripted']:
+    elif arguments['--alfred']:
         spotify_tracker_logger.setLevel(level=DEFAULT_LOG_LEVEL)
         ch = logging.StreamHandler(sys.stdout)
         ch.setLevel(DEFAULT_LOG_LEVEL)
@@ -62,7 +62,10 @@ def main():
         return
     if arguments['addtofavorites']:
         _spotify_client = SpotifyFavoritesClient()
-        _spotify_client.safe_main()
+        if arguments['--alfred']:
+            _spotify_client.main()
+        else:
+            _spotify_client.safe_main()
         return
     if arguments['debug-refresh-token']:
         _spotify_client = SpotifyPlaylistClient()
