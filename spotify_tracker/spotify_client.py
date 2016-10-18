@@ -3,6 +3,7 @@ import datetime
 
 import spotipy
 import spotipy.util as util
+from spotipy.oauth2 import SpotifyOAuth
 import arrow
 
 from . import current_track
@@ -88,11 +89,26 @@ class SpotifyPlaylistClient:
             self.get_track_name_and_artist_string(track_id)
         ))
 
-    def save_token(self):
+    def get_token(self, allow_raw_input=True):
+        if allow_raw_input:
+            token = util.prompt_for_user_token(
+                self.username, config.SCOPE, self.client_id,
+                self.client_secret, self.callback_url)
+        else:
+            sp_oauth = SpotifyOAuth(
+                self.client_id, self.client_secret, self.callback_url,
+                scope=config.SCOPE, cache_path=".cache-"+self.username)
+            token_info = sp_oauth.get_cached_token()
+            if token_info:
+                token = token_info['access_token']
+            else:
+                raise Exception('need to run debug-refresh-token in a terminal')
+        return token
+
+
+    def save_token(self, allow_raw_input=True):
         logger.debug('Updating token.')
-        token = util.prompt_for_user_token(
-            self.username, config.SCOPE, self.client_id,
-            self.client_secret, self.callback_url)
+        token = self.get_token(allow_raw_input)
         config.save_config_value('token', token)
         self.token = token
         self.refresh_sp()

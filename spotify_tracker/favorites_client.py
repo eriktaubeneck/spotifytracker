@@ -5,7 +5,7 @@ from . import config
 
 
 logger = logging.getLogger(name='spotify_tracker')
-
+n
 
 class SpotifyFavoritesClient(SpotifyPlaylistClient):
     def __init__(self):
@@ -46,3 +46,12 @@ class SpotifyFavoritesClient(SpotifyPlaylistClient):
                 self.get_track_name_and_artist_string(track_id),
                 self.playlist_name
             ))
+
+    def alfred_main(self):
+        try:
+            self.main()
+        except spotipy.client.SpotifyException as exc:
+            if exc.code == -1:
+                self.save_token(allow_raw_input=False)
+            else:
+                logger.exception('Unknown exception.')

@@ -63,7 +63,7 @@ def main():
     if arguments['addtofavorites']:
         _spotify_client = SpotifyFavoritesClient()
         if arguments['--alfred']:
-            _spotify_client.main()
+            _spotify_client.alfred_main()
         else:
             _spotify_client.safe_main()
         return
