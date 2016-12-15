@@ -5,7 +5,7 @@ from . import config
 
 
 logger = logging.getLogger(name='spotify_tracker')
-n
+
 
 class SpotifyFavoritesClient(SpotifyPlaylistClient):
     def __init__(self):
