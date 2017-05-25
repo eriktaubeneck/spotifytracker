@@ -101,7 +101,6 @@ class SpotifyPlaylistClient:
                 self.username, config.SCOPE, self.client_id,
                 self.client_secret, self.callback_url)
         else:
-            logger.warning('opening cache at {}'.format(self.cache_path))
             sp_oauth = SpotifyOAuth(
                 self.client_id, self.client_secret, self.callback_url,
                 scope=config.SCOPE, cache_path=self.cache_path)
