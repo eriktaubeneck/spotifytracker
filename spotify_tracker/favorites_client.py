@@ -3,6 +3,8 @@ import logging
 from spotify_tracker.spotify_client import SpotifyPlaylistClient
 from . import config
 
+import spotipy
+
 
 logger = logging.getLogger(name='spotify_tracker')
 
@@ -27,7 +29,20 @@ class SpotifyFavoritesClient(SpotifyPlaylistClient):
         config.save_config_value('favorites_playlist_id', playlist_id)
         config.save_config_value('favorites_playlist_name', playlist_name)
 
-    def main(self):
+    def main(self, allow_raw_input=True):
+        try:
+            self.add_current_song_to_playlist()
+        except spotipy.client.SpotifyException as exc:
+            if exc.code == -1:
+                logger.debug('spotify token expired. refreshing')
+                self.save_token(allow_raw_input=allow_raw_input)
+                self.refresh_sp()
+                logger.debug('reattempting add_to_favorites')
+                self.add_current_song_to_playlist()
+            else:
+                logger.exception('Unknown exception.')
+
+    def add_current_song_to_playlist(self):
         if not self.check_config():
             raise Exception("Please run setupfavorites command.")
 
@@ -48,10 +63,4 @@ class SpotifyFavoritesClient(SpotifyPlaylistClient):
             ))
 
     def alfred_main(self):
-        try:
-            self.main()
-        except spotipy.client.SpotifyException as exc:
-            if exc.code == -1:
-                self.save_token(allow_raw_input=False)
-            else:
-                logger.exception('Unknown exception.')
+        self.main(allow_raw_input=False)

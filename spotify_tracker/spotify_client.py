@@ -1,5 +1,6 @@
 import logging
 import datetime
+import os
 
 import spotipy
 import spotipy.util as util
@@ -26,6 +27,11 @@ class SpotifyPlaylistClient:
         if not hasattr(self, '_sp'):
             self.refresh_sp()
         return self._sp
+
+    @property
+    def cache_path(self):
+        cache_name = '.cache-{}'.format(self.username)
+        return os.path.join(config.CONFIG_DIR, cache_name)
 
     def refresh_sp(self):
         self._sp = spotipy.Spotify(auth=config.get_config_value('token'))
@@ -95,16 +101,16 @@ class SpotifyPlaylistClient:
                 self.username, config.SCOPE, self.client_id,
                 self.client_secret, self.callback_url)
         else:
+            logger.warning('opening cache at {}'.format(self.cache_path))
             sp_oauth = SpotifyOAuth(
                 self.client_id, self.client_secret, self.callback_url,
-                scope=config.SCOPE, cache_path=".cache-"+self.username)
+                scope=config.SCOPE, cache_path=self.cache_path)
             token_info = sp_oauth.get_cached_token()
             if token_info:
                 token = token_info['access_token']
             else:
                 raise Exception('need to run debug-refresh-token in a terminal')
         return token
-
 
     def save_token(self, allow_raw_input=True):
         logger.debug('Updating token.')

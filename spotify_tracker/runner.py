@@ -77,5 +77,6 @@ def main():
             int(arguments['<days>']), arguments['--dryrun']
         )
 
+
 if __name__ == "__main__":
     main()
