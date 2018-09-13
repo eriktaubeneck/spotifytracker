@@ -1,7 +1,7 @@
 import logging
 
-from spotify_tracker.spotify_client import SpotifyPlaylistClient
-from . import config
+from spotify_client import SpotifyPlaylistClient
+import config
 
 import spotipy
 
@@ -11,9 +11,9 @@ logger = logging.getLogger(name='spotify_tracker')
 
 class SpotifyFavoritesClient(SpotifyPlaylistClient):
     def __init__(self):
+        super().__init__()
         self.playlist_id = config.get_config_value('favorites_playlist_id')
         self.playlist_name = config.get_config_value('favorites_playlist_name')
-        return super().__init__()
 
     def setup_playlist_id(self):
         print("You need to add a playlist_id to your config to save "

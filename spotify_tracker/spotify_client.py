@@ -7,8 +7,8 @@ import spotipy.util as util
 from spotipy.oauth2 import SpotifyOAuth
 import arrow
 
-from . import current_track
-from . import config
+import current_track
+import config
 
 
 logger = logging.getLogger(name='spotify_tracker')
@@ -16,6 +16,7 @@ logger = logging.getLogger(name='spotify_tracker')
 
 class SpotifyPlaylistClient:
     def __init__(self):
+        config.ensure_config_file_exists()
         self.username = config.get_config_value('username')
         self.client_id = config.get_config_value('client_id')
         self.client_secret = config.get_config_value('client_secret')

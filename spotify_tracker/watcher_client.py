@@ -1,8 +1,8 @@
 import time
 import logging
 
-from spotify_tracker.spotify_client import SpotifyPlaylistClient
-from . import config
+from spotify_client import SpotifyPlaylistClient
+import config
 
 
 logger = logging.getLogger(name='spotify_tracker')

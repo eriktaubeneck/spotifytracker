@@ -18,9 +18,9 @@ import sys
 
 from docopt import docopt
 
-from spotify_tracker.spotify_client import SpotifyPlaylistClient
-from spotify_tracker.watcher_client import SpotifyWatcherClient
-from spotify_tracker.favorites_client import SpotifyFavoritesClient
+from spotify_client import SpotifyPlaylistClient
+from watcher_client import SpotifyWatcherClient
+from favorites_client import SpotifyFavoritesClient
 
 
 DEFAULT_LOG_LEVEL = logging.INFO
