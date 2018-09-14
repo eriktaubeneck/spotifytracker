@@ -30,6 +30,14 @@ Then, to run
 spotifytracker watch
 ```
 
+## Development
+
+To run from source, use
+
+```
+python -m spotify_tracker.runner
+```
+
 ## Contribute
 
 This was a Hackday thing, so I don't have anything specifically planned for this, but if you think it could be better, open a PR!

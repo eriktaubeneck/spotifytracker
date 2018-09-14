@@ -7,8 +7,8 @@ import spotipy.util as util
 from spotipy.oauth2 import SpotifyOAuth
 import arrow
 
-import current_track
-import config
+from . import current_track
+from . import config
 
 
 logger = logging.getLogger(name='spotify_tracker')

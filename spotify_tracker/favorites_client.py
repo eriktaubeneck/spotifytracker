@@ -1,7 +1,7 @@
 import logging
 
-from spotify_client import SpotifyPlaylistClient
-import config
+from .spotify_client import SpotifyPlaylistClient
+from . import config
 
 import spotipy
 

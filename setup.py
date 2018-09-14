@@ -1,15 +1,19 @@
 from setuptools import setup
 
+
+with open('readme.md', 'r') as f:
+    readme = f.read()
+
 setup(
     name='spotifytracker',
-    version='0.0.16',
+    version='0.0.17',
     packages=['spotify_tracker'],
     url='http://github.com/eriktaubeneck/spotifytracker',
     license='MIT',
     author='Erik Taubeneck',
     author_email='erik.taubeneck@gmail.com',
     description='Track your Spotify play history.',
-    long_description=__doc__,
+    long_description=readme,
     py_modules=['spotify_tracker'],
     zip_safe=False,
     include_package_data=True,
