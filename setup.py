@@ -6,7 +6,7 @@ with open('readme.md', 'r') as f:
 
 setup(
     name='spotifytracker',
-    version='0.0.17',
+    version='0.0.18',
     packages=['spotify_tracker'],
     url='http://github.com/eriktaubeneck/spotifytracker',
     license='MIT',
@@ -14,6 +14,7 @@ setup(
     author_email='erik.taubeneck@gmail.com',
     description='Track your Spotify play history.',
     long_description=readme,
+    long_description_content_type='text/markdown',
     py_modules=['spotify_tracker'],
     zip_safe=False,
     include_package_data=True,

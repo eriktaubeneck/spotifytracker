@@ -6,7 +6,7 @@ Living in NYC, I spend a fair amount of time underground without cell service. I
 
 ## The rub
 
-Spotify doesn't let you see what a user is currently listening to from their web api. Boo. (There's an issue open on their [web api github page](https://github.com/spotify/web-api/issues/12) that get's a +1 a day or so, if you want to join...) So instead, I hacked together some AppleScript to grab the current song from the OS X Spotify Client. So, at least for now, this is OS X only. ¯\_(ツ)_/¯
+Spotify doesn't let you see what a user is currently listening to from their web api. Boo. (There's an issue open on their [web api github page](https://github.com/spotify/web-api/issues/12) that get's a +1 a day or so, if you want to join...) So instead, I hacked together some AppleScript to grab the current song from the OS X Spotify Client. So, at least for now, this is OS X only. ¯\\_(ツ)_/¯
 
 ## Installation
 
