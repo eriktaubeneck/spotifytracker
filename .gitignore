@@ -5,3 +5,4 @@ venvpypy
 build
 dist
 spotifytracker.egg-info
+.cache-*
